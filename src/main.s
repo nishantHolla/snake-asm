@@ -5,6 +5,7 @@
 
 .extern srand
 .extern time
+.extern printf
 
 .section .data
 
@@ -67,6 +68,12 @@ main:
   call InitWindow
   addl $16, %esp
 
+  ## Set target fps
+  subl $12, %esp
+  pushl $TARGET_FPS
+  call SetTargetFPS
+  addl $16, %esp
+
   ## Initialize grid
   subl $8, %esp
   pushl $HEADER_HEIGHT
@@ -102,7 +109,6 @@ game_loop_head:
   je end
 
 game_loop_body:
-
   call BeginDrawing
 
   ## Clear the window
@@ -119,7 +125,6 @@ game_loop_body:
   call draw_grid
   addl $16, %esp
 
-temp:
   ## Draw the food
   subl $12, %esp
   pushl food_vec
