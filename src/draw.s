@@ -1,6 +1,8 @@
 .include "_raylib.s"
 .include "_vec2.s"
+.include "_constants.s"
 
+## draw_grid
 # PURPOSE: Draw a grind onto the raylib window
 #
 # INPUT: The function takes the following arguments:
@@ -138,6 +140,67 @@ draw_grid_col_loop_foot:
   jmp draw_grid_col_loop_head
 
 draw_grid_end:
+  ## Epilogue
+  popl %ebx
+  popl %esi
+  popl %edi
+  movl %ebp, %esp
+  popl %ebp
+  ret
+
+
+## draw_food
+# PURPOSE: Draw food onto the raylib window
+#
+# INPUT: The function takes the following arguments:
+#      - 1: The vec2 of the food position to draw
+#
+# OUTPUT: None
+.section .data
+
+.equ ST_FOOD_VEC, 8
+.equ ST_FOOD_X, -4
+.equ ST_FOOD_Y, -8
+
+.section .text
+.global draw_food
+
+.type draw_food, @function
+draw_food:
+  ## Prologue
+  pushl %ebp
+  movl %esp, %ebp
+  subl $12, %esp
+  pushl %edi
+  pushl %esi
+  pushl %ebx
+
+  ## Load the food vector
+  subl $12, %esp
+  pushl ST_FOOD_VEC(%ebp)
+  call vec2_load_x
+  addl $16, %esp
+  imull $CELL_X, %eax
+  movl %eax, ST_FOOD_X(%ebp)
+
+  subl $12, %esp
+  pushl ST_FOOD_VEC(%ebp)
+  call vec2_load_y
+  addl $16, %esp
+  imull $CELL_Y, %eax
+  addl $HEADER_HEIGHT, %eax
+  movl %eax, ST_FOOD_Y(%ebp)
+
+  ## Draw the food
+  pushl $FOOD_COLOR
+  pushl $CELL_Y
+  pushl $CELL_X
+  pushl ST_FOOD_Y(%ebp)
+  pushl ST_FOOD_X(%ebp)
+  call DrawRectangle
+  addl $16, %esp
+
+draw_food_end:
   ## Epilogue
   popl %ebx
   popl %esi

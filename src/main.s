@@ -1,6 +1,10 @@
 .include "_constants.s"
 .include "_raylib.s"
 .include "_vec2.s"
+.include "_food.s"
+
+.extern srand
+.extern time
 
 .section .data
 
@@ -22,6 +26,9 @@ window_width:
 window_height:
   .long WINDOW_HEIGHT
 
+food_vec:
+  .long 0
+
 .section .text
 .global main
 
@@ -34,6 +41,17 @@ main:
   pushl %edi
   pushl %esi
   pushl %ebx
+
+  ## Initialize random
+  subl $12, %esp
+  pushl $0
+  call time
+  addl $16, %esp
+
+  subl $12, %esp
+  pushl %eax
+  call srand
+  addl $16, %esp
 
   ## Raylib window config flags
   subl $12, %esp
@@ -71,6 +89,12 @@ main:
   addl $16, %esp
   movl %eax, grid_cell_size
 
+  ## Initialize food
+  subl $12, %esp
+  pushl $food_vec
+  call food_generate
+  addl $16, %esp
+
 game_loop_head:
   ## Check if window should close, if so, break the loop
   call WindowShouldClose
@@ -81,6 +105,12 @@ game_loop_body:
 
   call BeginDrawing
 
+  ## Clear the window
+  subl $12, %esp
+  pushl $WINDOW_BG
+  call ClearBackground
+  addl $16, %esp
+
   ## Draw the grid
   pushl $WINDOW_FG
   pushl grid_cell_size
@@ -89,10 +119,11 @@ game_loop_body:
   call draw_grid
   addl $16, %esp
 
-  ## Clear the window
+temp:
+  ## Draw the food
   subl $12, %esp
-  pushl $WINDOW_BG
-  call ClearBackground
+  pushl food_vec
+  call draw_food
   addl $16, %esp
 
   call EndDrawing

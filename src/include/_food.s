@@ -1,0 +1,1 @@
+.extern food_generate
