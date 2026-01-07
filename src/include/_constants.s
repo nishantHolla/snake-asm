@@ -17,3 +17,8 @@
 .equ ROW_COUNT, (WINDOW_HEIGHT - HEADER_HEIGHT) / CELL_Y
 
 .equ TARGET_FPS, 10
+
+.equ NORTH, 0
+.equ EAST, 1
+.equ SOUTH, 2
+.equ WEST, 3

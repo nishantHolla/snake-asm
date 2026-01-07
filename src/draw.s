@@ -258,6 +258,7 @@ draw_snake_loop_body:
   call vec2_load_y
   addl $16, %esp
   imull $CELL_Y, %eax
+  addl $HEADER_HEIGHT, %eax
   movl %eax, ST_SNAKE_Y(%ebp)
 
   pushl $SNAKE_COLOR

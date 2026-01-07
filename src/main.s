@@ -34,6 +34,9 @@ food_vec:
 snake_length:
   .long 5
 
+snake_direction:
+  .long EAST
+
 .section .bss
 
 .lcomm snake_body, 100
@@ -111,9 +114,17 @@ main:
   addl $16, %esp
 
   ## Initialize snake
-  subl $12, %esp
+  subl $8, %esp
+  pushl snake_length
   pushl $snake_body
   call snake_init
+  addl $16, %esp
+
+  subl $4, %esp
+  pushl snake_direction
+  pushl snake_length
+  pushl $snake_body
+  call snake_move
   addl $16, %esp
 
 game_loop_head:
