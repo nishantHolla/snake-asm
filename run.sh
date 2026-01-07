@@ -3,17 +3,19 @@
 CC="gcc"
 LD="gcc"
 CFLAGS="-c -g -m32"
-LDFLAGS="-m32 -no-pie -z noexecstack"
-LIBS=""
+LDFLAGS="-m32 -no-pie -z noexecstack -Llib"
+LIBS="-lraylib -lm -ldl -lpthread -lX11 -lGL"
 BUILD_DIR="./build"
 OUT="snake"
 
 mkdir -p $BUILD_DIR
 
-for file in ./src/*.s; do
+cd src
+for file in ./[^_]*.s; do
   base=`basename -s .s $file`
-  $CC $CFLAGS $file -o ./$BUILD_DIR/$base.o
+  $CC $CFLAGS $file -o ../$BUILD_DIR/$base.o
 done
+cd ..
 
 $LD $LDFLAGS $BUILD_DIR/*.o -o $OUT $LIBS
 ./$OUT "${@:2}"
