@@ -5,5 +5,6 @@
 .extern BeginDrawing
 .extern EndDrawing
 .extern ClearBackground
+.extern DrawLine
 
 .equ FLAG_FULLSCREEN_MODE, 0x00000002

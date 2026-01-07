@@ -1,8 +1,26 @@
 .include "_constants.s"
 .include "_raylib.s"
-.include "_window.s"
+.include "_vec2.s"
 
 .section .data
+
+grid_start_vec:
+  .long 0
+
+grid_end_vec:
+  .long 0
+
+grid_cell_size:
+  .long 0
+
+window_title:
+  .asciz "snake game"
+
+window_width:
+  .long WINDOW_WIDTH
+
+window_height:
+  .long WINDOW_HEIGHT
 
 .section .text
 .global main
@@ -31,6 +49,28 @@ main:
   call InitWindow
   addl $16, %esp
 
+  ## Initialize grid
+  subl $8, %esp
+  pushl $HEADER_HEIGHT
+  pushl $0
+  call vec2_create
+  addl $16, %esp
+  movl %eax, grid_start_vec
+
+  subl $8, %esp
+  pushl window_height
+  pushl window_width
+  call vec2_create
+  addl $16, %esp
+  movl %eax, grid_end_vec
+
+  subl $8, %esp
+  pushl $CELL_Y
+  pushl $CELL_X
+  call vec2_create
+  addl $16, %esp
+  movl %eax, grid_cell_size
+
 game_loop_head:
   ## Check if window should close, if so, break the loop
   call WindowShouldClose
@@ -41,6 +81,15 @@ game_loop_body:
 
   call BeginDrawing
 
+  ## Draw the grid
+  pushl $WINDOW_FG
+  pushl grid_cell_size
+  pushl grid_end_vec
+  pushl grid_start_vec
+  call draw_grid
+  addl $16, %esp
+
+  ## Clear the window
   subl $12, %esp
   pushl $WINDOW_BG
   call ClearBackground

@@ -1,0 +1,11 @@
+.equ TRUE, 1
+.equ FALSE, 0
+
+.equ WINDOW_BG, 0xff000000
+.equ WINDOW_FG, 0xffffffff
+.equ WINDOW_WIDTH, 1920
+.equ WINDOW_HEIGHT, 1080
+
+.equ HEADER_HEIGHT, 60
+.equ CELL_X, 60
+.equ CELL_Y, 60
