@@ -45,7 +45,7 @@ score:
 
 .section .bss
 
-.lcomm snake_body, 100
+.lcomm snake_body, 500
 
 .section .text
 .global main
@@ -147,13 +147,13 @@ game_loop_body:
   #
   # cmpl $TRUE, snake_is_alive
   # jne game_loop_draw
-  #
-  # subl $4, %esp
-  # pushl $score
-  # pushl snake_body
-  # pushl food_vec
-  # call snake_check_food # TODO: IMPLEMENT THIS
-  # addl $16, %esp
+
+  pushl $snake_length
+  pushl $score
+  pushl $snake_body
+  pushl $food_vec
+  call snake_check_food
+  addl $16, %esp
 
   ## Move the snake
   subl $4, %esp
@@ -180,17 +180,23 @@ game_loop_draw:
   call draw_grid
   addl $16, %esp
 
+  ## Draw the snake
+  subl $8, %esp
+  pushl snake_length
+  pushl $snake_body
+  call draw_snake
+  addl $16, %esp
+
   ## Draw the food
   subl $12, %esp
   pushl food_vec
   call draw_food
   addl $16, %esp
 
-  ## Draw the snake
-  subl $8, %esp
-  pushl snake_length
-  pushl $snake_body
-  call draw_snake
+  ## Draw the score
+  subl $12, %esp
+  pushl score
+  call draw_score
   addl $16, %esp
 
   call EndDrawing

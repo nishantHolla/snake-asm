@@ -1,6 +1,7 @@
 .include "_vec2.s"
 .include "_raylib.s"
 .include "_constants.s"
+.include "_food.s"
 
 ## snake_init
 # PURPOSE: Initialize snake body upto a given length
@@ -343,6 +344,66 @@ snake_check_movement_move_west:
   jmp snake_move_end
 
 snake_check_movement_end:
+  ## Epilogue
+  popl %ebx
+  popl %esi
+  popl %edi
+  movl %ebp, %esp
+  popl %ebp
+  ret
+
+
+## snake_check_food
+# PURPOSE: Check if snake has eaten food
+#
+# INPUT: The function takes the following arguments:
+#      - 1: Address of Position of food
+#      - 2: Address of Position of snake head
+#      - 3: Address of the score variable
+#      - 4: Address of snake length variable
+#
+# OUTPUT: None
+.section .data
+
+.equ ST_FOOD, 8
+.equ ST_SNAKE, 12
+.equ ST_SCORE_ADDRESS, 16
+.equ ST_SNAKE_LENGTH, 20
+
+.section .text
+.global snake_check_food
+
+.type snake_check_food, @function
+snake_check_food:
+  ## Prologue
+  pushl %ebp
+  movl %esp, %ebp
+  subl $12, %esp
+  pushl %edi
+  pushl %esi
+  pushl %ebx
+
+  movl ST_FOOD(%ebp), %eax
+  movl (%eax), %ebx
+
+  movl ST_SNAKE(%ebp), %eax
+  movl (%eax), %ecx
+
+  cmpl %ebx, %ecx
+  jne snake_check_food_end
+
+  movl ST_SCORE_ADDRESS(%ebp), %ecx
+  incl (%ecx)
+
+  movl ST_SNAKE_LENGTH(%ebp), %ecx
+  incl (%ecx)
+
+  subl $12, %esp
+  pushl ST_FOOD(%ebp)
+  call food_generate
+  addl $16, %esp
+
+snake_check_food_end:
   ## Epilogue
   popl %ebx
   popl %esi

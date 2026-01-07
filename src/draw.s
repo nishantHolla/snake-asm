@@ -1,3 +1,5 @@
+.extern sprintf
+
 .include "_raylib.s"
 .include "_vec2.s"
 .include "_constants.s"
@@ -275,6 +277,63 @@ draw_snake_loop_foot:
   jmp draw_snake_loop_head
 
 draw_snake_end:
+  ## Epilogue
+  popl %ebx
+  popl %esi
+  popl %edi
+  movl %ebp, %esp
+  popl %ebp
+  ret
+
+
+## draw_score
+# PURPOSE: Draw the given score to raylib wndow
+#
+# INPUT: The function takes the following arguments:
+#      - 1: Score to print
+#
+# OUTPUT: None
+.section .data
+
+.equ ST_SCORE, 8
+
+score_fmt:
+  .asciz "Score: %d\0"
+
+.section .bss
+
+.lcomm score_buffer, 20
+
+.section .text
+.global draw_score
+
+.type draw_score, @function
+draw_score:
+  ## Prologue
+  pushl %ebp
+  movl %esp, %ebp
+  subl $12, %esp
+  pushl %edi
+  pushl %esi
+  pushl %ebx
+
+  subl $4, %esp
+  pushl ST_SCORE(%ebp)
+  pushl $score_fmt
+  pushl $score_buffer
+  call sprintf
+  addl $16, %esp
+
+  subl $12, %esp
+  pushl $HEADER_FG
+  pushl $HEADER_FONT_SIZE
+  pushl $10
+  pushl $10
+  pushl $score_buffer
+  call DrawText
+  addl $32, %esp
+
+draw_score_end:
   ## Epilogue
   popl %ebx
   popl %esi

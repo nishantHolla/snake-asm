@@ -10,6 +10,7 @@
 .extern SetTargetFPS
 .extern GetFrameTime
 .extern IsKeyDown
+.extern DrawText
 
 .equ FLAG_FULLSCREEN_MODE, 0x00000002
 .equ KEY_W, 87

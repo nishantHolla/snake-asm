@@ -9,7 +9,10 @@
 .equ FOOD_COLOR, 0xff6ff3f7
 .equ SNAKE_COLOR, 0xff4f50f0
 
+.equ HEADER_FG, 0xffffffff
 .equ HEADER_HEIGHT, 60
+.equ HEADER_FONT_SIZE, 38
+
 .equ CELL_X, 60
 .equ CELL_Y, 60
 
