@@ -1,4 +1,5 @@
 .include "_vec2.s"
+.include "_raylib.s"
 .include "_constants.s"
 
 ## snake_init
@@ -29,30 +30,36 @@ snake_init:
   pushl %esi
   pushl %ebx
 
+  ## Starting position of snake head is col 16 and row 8
   movl $16, %eax
   movl $8, %ebx
   movl ST_BUFFER(%ebp), %ecx
   movl ST_SIZE(%ebp), %edi
 
 snake_init_loop_head:
+  ## Check if last snake body is initialized
   cmpl $0, %edi
   je snake_init_end
 
 snake_init_loop_body:
+  ## save address current snake cell and its x coordinate to local variables
   movl %ecx, ST_SNAKE(%ebp)
   movl %eax, ST_COORD(%ebp)
 
+  ## create the vector for current cell
   subl $8, %esp
   pushl %ebx
   pushl %eax
   call vec2_create
   addl $16, %esp
 
+  ## assign the created vector to the current snake cell
   movl ST_SNAKE(%ebp), %ecx
   movl %eax, (%ecx)
   movl ST_COORD(%ebp), %eax
 
 snake_init_loop_tail:
+  ## Move to next snake cell and decrement the current x coordinate
   decl %eax
   decl %edi
   addl $4, %ecx
@@ -103,30 +110,37 @@ snake_move:
   pushl %esi
   pushl %ebx
 
+  ## Get the address of the last snake cell
   movl ST_SNAKE_LENGTH(%ebp), %eax
   imull $4, %eax
   movl ST_SNAKE_ADDRESS(%ebp), %ebx
   addl %eax, %ebx
   subl $4, %ebx
 
+  ## Initialize the countdown counter
   movl ST_SNAKE_LENGTH(%ebp), %edi
 
 snake_move_loop_head:
+  ## Check if snake head cell is reached, if so break out of the loop
   cmpl $1, %edi
   je snake_move_head
 
 snake_move_loop_body:
+  ## Assign the coordinate of the next snake cell in the list to the current snake cell
   movl %ebx, %eax
   subl $4, %eax
   movl (%eax), %ecx
   movl %ecx, (%ebx)
 
 snake_move_loop_tail:
+  ## Move to the next snake cell and decrement the counter
   decl %edi
   subl $4, %ebx
+
   jmp snake_move_loop_head
 
 snake_move_head:
+  ## Load the coordinates of the snake head
   subl $12, %esp
   pushl (%ebx)
   call vec2_load_x
@@ -139,8 +153,10 @@ snake_move_head:
   addl $16, %esp
   movl %eax, ST_Y(%ebp)
 
+  ## Load the current direction of the snake
   movl ST_DIRECTION(%ebp), %eax
 
+  ## Check the current direction of the snake
   cmpl $NORTH, %eax
   je snake_move_head_north
 
@@ -154,9 +170,11 @@ snake_move_head:
   je snake_move_head_west
 
 snake_move_head_north:
+  ## X stays same, decrement Y
   movl ST_Y(%ebp), %eax
   decl %eax
 
+  ## Create and assign the new vector
   subl $8, %esp
   pushl %eax
   pushl ST_X(%ebp)
@@ -167,9 +185,11 @@ snake_move_head_north:
   jmp snake_move_end
 
 snake_move_head_east:
+  ## Y stays same, increment X
   movl ST_X(%ebp), %eax
   incl %eax
 
+  ## Create and assign the new vector
   subl $8, %esp
   pushl ST_Y(%ebp)
   pushl %eax
@@ -180,9 +200,11 @@ snake_move_head_east:
   jmp snake_move_end
 
 snake_move_head_south:
+  ## X stays same, increment Y
   movl ST_Y(%ebp), %eax
   incl %eax
 
+  ## Create and assign the new vector
   subl $8, %esp
   pushl %eax
   pushl ST_X(%ebp)
@@ -193,9 +215,11 @@ snake_move_head_south:
   jmp snake_move_end
 
 snake_move_head_west:
+  ## Y stays same, decrement X
   movl ST_X(%ebp), %eax
   decl %eax
 
+  ## Create and assign the new vector
   subl $8, %esp
   pushl ST_Y(%ebp)
   pushl %eax
@@ -206,6 +230,119 @@ snake_move_head_west:
   jmp snake_move_end
 
 snake_move_end:
+  ## Epilogue
+  popl %ebx
+  popl %esi
+  popl %edi
+  movl %ebp, %esp
+  popl %ebp
+  ret
+
+
+## snake_check_movement
+# PURPOSE: Check raylib inputs for snake movement
+#
+# INPUT: The function takes the following arguments:
+#      - 1: Address of the direction variable that must be updated
+#
+# Output: None
+.section .data
+
+.equ ST_DIRECTION_ADDRESS, 8
+
+.section .text
+.global snake_check_movement
+
+.type snake_check_movement, @function
+snake_check_movement:
+  ## Prologue
+  pushl %ebp
+  movl %esp, %ebp
+  subl $12, %esp
+  pushl %edi
+  pushl %esi
+  pushl %ebx
+
+  ## Check the current key pressed
+  subl $12, %esp
+  pushl $KEY_W
+  call IsKeyDown
+  addl $16, %esp
+
+  cmp $TRUE, %al
+  je snake_check_movement_move_north
+
+  subl $12, %esp
+  pushl $KEY_D
+  call IsKeyDown
+  addl $16, %esp
+
+  cmp $TRUE, %al
+  je snake_check_movement_move_east
+
+  subl $12, %esp
+  pushl $KEY_S
+  call IsKeyDown
+  addl $16, %esp
+
+  cmp $TRUE, %al
+  je snake_check_movement_move_south
+
+  subl $12, %esp
+  pushl $KEY_A
+  call IsKeyDown
+  addl $16, %esp
+
+  cmp $TRUE, %al
+  je snake_check_movement_move_west
+
+  jmp snake_check_movement_end
+
+snake_check_movement_move_north:
+  ## If current direction is not south, set it to north
+  movl ST_DIRECTION_ADDRESS(%ebp), %ebx
+  movl (%ebx), %eax
+
+  cmpl $SOUTH, %eax
+  je snake_move_end
+
+  movl $NORTH, (%ebx)
+  jmp snake_move_end
+
+snake_check_movement_move_east:
+  ## If current direction is not west, set it to east
+  movl ST_DIRECTION_ADDRESS(%ebp), %ebx
+  movl (%ebx), %eax
+
+  cmpl $WEST, %eax
+  je snake_move_end
+
+  movl $EAST, (%ebx)
+  jmp snake_move_end
+
+snake_check_movement_move_south:
+  ## If current direction is not north, set it to south
+  movl ST_DIRECTION_ADDRESS(%ebp), %ebx
+  movl (%ebx), %eax
+
+  cmpl $NORTH, %eax
+  je snake_move_end
+
+  movl $SOUTH, (%ebx)
+  jmp snake_move_end
+
+snake_check_movement_move_west:
+  ## If current direction is not east, set it to west
+  movl ST_DIRECTION_ADDRESS(%ebp), %ebx
+  movl (%ebx), %eax
+
+  cmpl $EAST, %eax
+  je snake_move_end
+
+  movl $WEST, (%ebx)
+  jmp snake_move_end
+
+snake_check_movement_end:
   ## Epilogue
   popl %ebx
   popl %esi

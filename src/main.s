@@ -37,6 +37,12 @@ snake_length:
 snake_direction:
   .long EAST
 
+snake_is_alive:
+  .long TRUE
+
+score:
+  .long 0
+
 .section .bss
 
 .lcomm snake_body, 100
@@ -120,6 +126,36 @@ main:
   call snake_init
   addl $16, %esp
 
+game_loop_head:
+  ## Check if window should close, if so, break the loop
+  call WindowShouldClose
+  cmp $TRUE, %al
+  je end
+
+  subl $12, %esp
+  pushl $snake_direction
+  call snake_check_movement
+  addl $16, %esp
+
+game_loop_body:
+  # subl $8, %esp
+  # pushl snake_length
+  # pushl $snake_body
+  # call snake_check_health # TODO: IMPLEMENT THIS
+  # addl $16, %esp
+  # movl %eax, snake_is_alive
+  #
+  # cmpl $TRUE, snake_is_alive
+  # jne game_loop_draw
+  #
+  # subl $4, %esp
+  # pushl $score
+  # pushl snake_body
+  # pushl food_vec
+  # call snake_check_food # TODO: IMPLEMENT THIS
+  # addl $16, %esp
+
+  ## Move the snake
   subl $4, %esp
   pushl snake_direction
   pushl snake_length
@@ -127,13 +163,7 @@ main:
   call snake_move
   addl $16, %esp
 
-game_loop_head:
-  ## Check if window should close, if so, break the loop
-  call WindowShouldClose
-  cmp $TRUE, %al
-  je end
-
-game_loop_body:
+game_loop_draw:
   call BeginDrawing
 
   ## Clear the window
