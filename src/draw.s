@@ -208,3 +208,76 @@ draw_food_end:
   movl %ebp, %esp
   popl %ebp
   ret
+
+
+## draw_snake
+# PURPOSE: Draw the snake to raylib window
+#
+# INPUT: The function takes the following arguments:
+#      - 1: The address of the buffer containing the coordinates of the snake body
+#      - 2: The length of the snake
+#
+# OUTPUT: None
+.section .data
+
+.equ ST_SNAKE_BUFFER, 8
+.equ ST_SNAKE_LENGTH, 12
+.equ ST_SNAKE_X, -4
+.equ ST_SNAKE_Y, -8
+
+.section .text
+.global draw_snake
+
+.type draw_snake, @function
+draw_snake:
+  ## Prologue
+  pushl %ebp
+  movl %esp, %ebp
+  subl $12, %esp
+  pushl %edi
+  pushl %esi
+  pushl %ebx
+
+  movl ST_SNAKE_BUFFER(%ebp), %ebx
+  movl ST_SNAKE_LENGTH(%ebp), %edi
+
+draw_snake_loop_head:
+  cmpl $0, %edi
+  je draw_snake_end
+
+draw_snake_loop_body:
+  subl $12, %esp
+  pushl (%ebx)
+  call vec2_load_x
+  addl $16, %esp
+  imull $CELL_X, %eax
+  movl %eax, ST_SNAKE_X(%ebp)
+
+  subl $12, %esp
+  pushl (%ebx)
+  call vec2_load_y
+  addl $16, %esp
+  imull $CELL_Y, %eax
+  movl %eax, ST_SNAKE_Y(%ebp)
+
+  pushl $SNAKE_COLOR
+  pushl $CELL_Y
+  pushl $CELL_X
+  pushl ST_SNAKE_Y(%ebp)
+  pushl ST_SNAKE_X(%ebp)
+  call DrawRectangle
+  addl $16, %esp
+
+draw_snake_loop_foot:
+  addl $4, %ebx
+  decl %edi
+  jmp draw_snake_loop_head
+
+draw_snake_end:
+  ## Epilogue
+  popl %ebx
+  popl %esi
+  popl %edi
+  movl %ebp, %esp
+  popl %ebp
+  ret

@@ -2,6 +2,7 @@
 .include "_raylib.s"
 .include "_vec2.s"
 .include "_food.s"
+.include "_snake.s"
 
 .extern srand
 .extern time
@@ -29,6 +30,13 @@ window_height:
 
 food_vec:
   .long 0
+
+snake_length:
+  .long 5
+
+.section .bss
+
+.lcomm snake_body, 100
 
 .section .text
 .global main
@@ -102,6 +110,12 @@ main:
   call food_generate
   addl $16, %esp
 
+  ## Initialize snake
+  subl $12, %esp
+  pushl $snake_body
+  call snake_init
+  addl $16, %esp
+
 game_loop_head:
   ## Check if window should close, if so, break the loop
   call WindowShouldClose
@@ -129,6 +143,13 @@ game_loop_body:
   subl $12, %esp
   pushl food_vec
   call draw_food
+  addl $16, %esp
+
+  ## Draw the snake
+  subl $8, %esp
+  pushl snake_length
+  pushl $snake_body
+  call draw_snake
   addl $16, %esp
 
   call EndDrawing

@@ -7,6 +7,7 @@
 .equ WINDOW_HEIGHT, 1080
 
 .equ FOOD_COLOR, 0xff6ff3f7
+.equ SNAKE_COLOR, 0xff4f50f0
 
 .equ HEADER_HEIGHT, 60
 .equ CELL_X, 60

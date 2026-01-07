@@ -1,0 +1,1 @@
+.extern snake_init
