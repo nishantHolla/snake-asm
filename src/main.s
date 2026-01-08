@@ -114,7 +114,9 @@ main:
   movl %eax, grid_cell_size
 
   ## Initialize food
-  subl $12, %esp
+  subl $4, %esp
+  pushl snake_length
+  pushl $snake_body
   pushl $food_vec
   call food_generate
   addl $16, %esp
