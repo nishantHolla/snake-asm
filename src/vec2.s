@@ -1,21 +1,7 @@
-# PURPOSE: Create a 2d vector from integers
-#
-# INPUT: The function takes the following arguments:
-#      - 1: x coordinate of the vector
-#      - 2: y coordinate of the vector
-#
-# OUTPUT: The function stores the vector struct in %eax
-#
-# NOTE: A vec2 struct is a 4 byte object where the first two higher order bytes denote the x coordinate
-#       and the last two lower oder bytes denote the y coordinate
-#
-#
-#     -------------------------------------
-#     | byte 3 | byte 2 | byte 1 | byte 0 |
-#     -------------------------------------
-#     |   x coordinate  |  y coordinate   |
-#     -------------------------------------
-#
+##################
+## vec2_create
+##################
+
 .section .data
 
 .equ ST_X_COORD, 8
@@ -48,13 +34,10 @@ vec2_create_end:
   popl %ebp
   ret
 
+##################
+## vec2_load_x
+##################
 
-# PURPOSE: Load x coordinate of a vec2 to eax
-#
-# INPUT: The function takes the following arguments:
-#      - 1: The vector to load
-#
-# OUTPUT: The function stores the x coordinate in eax
 .section .data
 
 .equ ST_VEC, 8
@@ -85,12 +68,10 @@ vec2_load_x_end:
   popl %ebp
   ret
 
-# PURPOSE: Load y coordinate of a vec2 to eax
-#
-# INPUT: The function takes the following arguments:
-#      - 1: The vector to load
-#
-# OUTPUT: The function stores the y coordinate in eax
+##################
+## vec2_load_y
+##################
+
 .section .data
 
 .equ ST_VEC, 8

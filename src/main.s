@@ -32,7 +32,7 @@ food_vec:
   .long 0
 
 snake_length:
-  .long 5
+  .long 0
 
 snake_direction:
   .long EAST
@@ -125,7 +125,7 @@ start_game:
   ## Initialize snake status
   movl $TRUE, snake_is_alive
   movl $0, score
-  movl $5, snake_length
+  movl $INITIAL_SNAKE_LENGTH, snake_length
   movl $EAST, snake_direction
 
   ## Initialize snake
