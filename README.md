@@ -1,6 +1,6 @@
 # snake-asm
 
-Classic snake game in x86 linux assembly
+Classic snake game in x86 linux assembly using raylib
 
 ## Demo
 
