@@ -341,3 +341,46 @@ draw_score_end:
   movl %ebp, %esp
   popl %ebp
   ret
+
+
+## draw_restart
+# PURPOSE: Draw the restart info to raylib window
+#
+# INPUT: None
+#
+# OUTPUT: None
+.section .data
+
+restart_text:
+  .asciz "Press r to restart"
+
+.section .text
+.global draw_restart
+
+.type draw_restart, @function
+draw_restart:
+  ## Prologue
+  pushl %ebp
+  movl %esp, %ebp
+  subl $12, %esp
+  pushl %edi
+  pushl %esi
+  pushl %ebx
+
+  subl $12, %esp
+  pushl $HEADER_FG
+  pushl $HEADER_FONT_SIZE
+  pushl $10
+  pushl $1000
+  pushl $restart_text
+  call DrawText
+  addl $32, %esp
+
+draw_restart_end:
+  ## Epilogue
+  popl %ebx
+  popl %esi
+  popl %edi
+  movl %ebp, %esp
+  popl %ebp
+  ret

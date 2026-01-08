@@ -17,3 +17,4 @@
 .equ KEY_A, 65
 .equ KEY_S, 83
 .equ KEY_D, 68
+.equ KEY_R, 82

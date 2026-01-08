@@ -2,3 +2,4 @@
 .extern draw_food
 .extern draw_snake
 .extern draw_score
+.extern draw_restart

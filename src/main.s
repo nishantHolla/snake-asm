@@ -119,6 +119,13 @@ main:
   call food_generate
   addl $16, %esp
 
+start_game:
+  ## Initialize snake status
+  movl $TRUE, snake_is_alive
+  movl $0, score
+  movl $5, snake_length
+  movl $EAST, snake_direction
+
   ## Initialize snake
   subl $8, %esp
   pushl snake_length
@@ -132,21 +139,24 @@ game_loop_head:
   cmp $TRUE, %al
   je end
 
+  cmpl $FALSE, snake_is_alive
+  je game_loop_check_restart
+
   subl $12, %esp
   pushl $snake_direction
   call snake_check_movement
   addl $16, %esp
 
 game_loop_body:
-  # subl $8, %esp
-  # pushl snake_length
-  # pushl $snake_body
-  # call snake_check_health # TODO: IMPLEMENT THIS
-  # addl $16, %esp
-  # movl %eax, snake_is_alive
-  #
-  # cmpl $TRUE, snake_is_alive
-  # jne game_loop_draw
+  subl $8, %esp
+  pushl snake_length
+  pushl $snake_body
+  call snake_check_health
+  addl $16, %esp
+  movl %eax, snake_is_alive
+
+  cmpl $FALSE, snake_is_alive
+  je game_loop_check_restart
 
   pushl $snake_length
   pushl $score
@@ -162,6 +172,17 @@ game_loop_body:
   pushl $snake_body
   call snake_move
   addl $16, %esp
+
+  jmp game_loop_draw
+
+game_loop_check_restart:
+  subl $12, %esp
+  pushl $KEY_R
+  call IsKeyDown
+  addl $16, %esp
+
+  cmp $TRUE, %al
+  je start_game
 
 game_loop_draw:
   call BeginDrawing
@@ -198,6 +219,14 @@ game_loop_draw:
   pushl score
   call draw_score
   addl $16, %esp
+
+  ## Draw restart instruction if snake is dead
+  cmpl $FALSE, snake_is_alive
+  jne skip_restart_inst
+  call draw_restart
+
+skip_restart_inst:
+
 
   call EndDrawing
 

@@ -2,6 +2,7 @@
 .include "_raylib.s"
 .include "_constants.s"
 .include "_food.s"
+.include "_list.s"
 
 ## snake_init
 # PURPOSE: Initialize snake body upto a given length
@@ -250,6 +251,8 @@ snake_move_end:
 .section .data
 
 .equ ST_DIRECTION_ADDRESS, 8
+.equ ST_X, -4
+.equ ST_Y, -8
 
 .section .text
 .global snake_check_movement
@@ -411,3 +414,94 @@ snake_check_food_end:
   movl %ebp, %esp
   popl %ebp
   ret
+
+
+## snake_check_health
+# PURPOSE: Check if the snake is alive or not
+#
+# INPUT: The function takes the following arguments:
+#      - 1: Address of the snake coordinates buffer
+#      - 2: Length of the snake
+#
+# OUTPUT: %eax is set to 1 if the snake is alive, else, it is set to 0
+.section .data
+
+.equ ST_SNAKE_ADDRESS, 8
+.equ ST_SNAKE_LENGTH, 12
+
+.section .text
+.global snake_check_health
+
+.type snake_check_health, @function
+snake_check_health:
+  ## Prologue
+  pushl %ebp
+  movl %esp, %ebp
+  subl $12, %esp
+  pushl %edi
+  pushl %esi
+  pushl %ebx
+
+  movl ST_SNAKE_ADDRESS(%ebp), %eax
+  movl (%eax), %ecx
+  addl $4, %eax
+
+  movl ST_SNAKE_LENGTH(%ebp), %ebx
+  decl %ebx
+
+  ## Check if head is colliding with its body
+  subl $4, %esp
+  pushl %ebx
+  pushl %eax
+  pushl %ecx
+  call list_contains
+  addl $16, %esp
+
+  cmpl $1, %eax
+  je snake_check_health_bad
+
+  ## Load the coordinates of the snake head
+  movl ST_SNAKE_ADDRESS(%ebp), %ebx
+
+  subl $12, %esp
+  pushl (%ebx)
+  call vec2_load_x
+  addl $16, %esp
+  movl %eax, ST_X(%ebp)
+
+  subl $12, %esp
+  pushl (%ebx)
+  call vec2_load_y
+  addl $16, %esp
+  movl %eax, ST_Y(%ebp)
+
+  ## Check if x is out of bound
+  movl ST_X(%ebp), %eax
+  cmpl $0, %eax
+  jl snake_check_health_bad
+
+  cmpl $COL_COUNT, %eax
+  jge snake_check_health_bad
+
+  ## Check if y is out of bound
+  movl ST_Y(%ebp), %eax
+  cmpl $0, %eax
+  jl snake_check_health_bad
+
+  cmpl $ROW_COUNT, %eax
+  jge snake_check_health_bad
+
+  movl $1, %eax
+
+snake_check_health_end:
+  ## Epilogue
+  popl %ebx
+  popl %esi
+  popl %edi
+  movl %ebp, %esp
+  popl %ebp
+  ret
+
+snake_check_health_bad:
+  movl $0, %eax
+  jmp snake_check_health_end
